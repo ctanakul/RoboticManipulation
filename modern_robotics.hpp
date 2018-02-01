@@ -4,6 +4,9 @@
 #include <vector>
 #include <Eigen/Dense>
 
-bool NearZero(double);
-
+namespace MR
+{
+  bool NearZero(double);
+  Eigen::Matrix3d VecToso3(Eigen::Vector3d);
+}
 #endif
