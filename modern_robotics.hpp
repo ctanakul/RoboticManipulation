@@ -6,6 +6,7 @@
 
 namespace MR
 {
+  struct AxisWAngle;
   bool NearZero(double);
   Eigen::Matrix3d VecToso3(Eigen::Vector3d);
   Eigen::Vector3d so3ToVec(Eigen::Matrix3d);

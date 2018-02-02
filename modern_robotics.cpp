@@ -16,6 +16,7 @@ Included libraries: iostream, math.h, Eigen
 #include <Eigen/Dense>
 #include <iostream>
 #include <math.h>
+#include <sstream>
 
 
 /*
@@ -39,6 +40,27 @@ bool MR::NearZero(double z)
   CHAPTER 3: RIGID-BODY MOTIONS
 */
 
+struct MR::AxisWAngle
+{
+  Eigen::Vector3d axis;
+  double angle;
+  AxisWAngle(Eigen::Vector3d omega, double theta)
+    try
+      : axis(omega), angle(theta) 
+      {
+	if(fabs(axis.norm() - 1) > 1e-6)
+	  {
+	    std::stringstream err;
+	    err << "Omega axis is not a unit vector: norm = " << axis.norm() << " not 1";
+	    throw std::invalid_argument(err.str());
+	  }
+      }
+  catch(const std::invalid_argument& ia)
+    {
+      std::cout << "Exception: " << ia.what() << std::endl;
+    }
+};
+
 Eigen::Matrix3d MR::VecToso3(Eigen::Vector3d omg)
 {
   /*
@@ -57,7 +79,7 @@ Eigen::Matrix3d MR::VecToso3(Eigen::Vector3d omg)
     omg(2), 0, -omg(0),
     -omg(1), omg(0), 0;
   return mat;
-  
+ 
 }
 
 Eigen::Vector3d MR::so3ToVec(Eigen::Matrix3d so3mat)
@@ -80,14 +102,18 @@ Eigen::Vector3d MR::so3ToVec(Eigen::Matrix3d so3mat)
 }
 
 
+
 int main()
 {
   std::cout << MR::NearZero(1e-7) << "\n";
-  Eigen::Vector3d V(1,2,3);
+  Eigen::Vector3d V(1,0,0);
   Eigen::Matrix3d mat;
   mat << 0, -3, 2, 3, 0 , -1, -2, 1 , 0;
   //mat = MR::VecToso3(V);
-  V = MR::so3ToVec(mat);
+  //V = MR::so3ToVec(mat);
   std::cout << V << std::endl;
+   MR::AxisWAngle AWA(V, 30);
+  std::cout << AWA.axis << std::endl;
+  std::cout << AWA.angle << std::endl;
   return 0;
 }
