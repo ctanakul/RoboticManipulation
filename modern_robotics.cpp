@@ -101,18 +101,39 @@ Eigen::Vector3d MR::so3ToVec(Eigen::Matrix3d so3mat)
   
 }
 
-
+MR::AxisWAngle MR::AxisAng3(Eigen::Vector3d expc3)
+{
+  /*
+    Takes A 3-vector of exponential coordinates for rotation.
+    Returns unit rotation axis omghat and the corresponding rotation angle
+    theta.
+    Example Input: 
+    expc3 = [1, 2, 3]
+    Output:
+    ([0.2672612419124244, 0.5345224838248488, 0.8017837257372732],
+    3.7416573867739413) 
+   */
+  Eigen::Vector3d ax = expc3;
+  ax.normalize();
+  //ax = expc3.normalize();
+  double ang = expc3.norm();
+  MR::AxisWAngle awa(ax, ang);
+  //awa.axis = expc3.normalize();
+  return awa;
+}
 
 int main()
 {
   std::cout << MR::NearZero(1e-7) << "\n";
-  Eigen::Vector3d V(1,0,0);
-  Eigen::Matrix3d mat;
-  mat << 0, -3, 2, 3, 0 , -1, -2, 1 , 0;
+  Eigen::Vector3d V(1,2,3);
+  Eigen::Vector3d V1(1,0,0);
+  //Eigen::Matrix3d mat;
+  //mat << 0, -3, 2, 3, 0 , -1, -2, 1 , 0;
   //mat = MR::VecToso3(V);
   //V = MR::so3ToVec(mat);
-  std::cout << V << std::endl;
-   MR::AxisWAngle AWA(V, 30);
+  //std::cout << V << std::endl;
+  MR::AxisWAngle AWA(V1, 30);
+  AWA = MR::AxisAng3(V);
   std::cout << AWA.axis << std::endl;
   std::cout << AWA.angle << std::endl;
   return 0;
