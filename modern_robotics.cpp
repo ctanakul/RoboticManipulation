@@ -101,7 +101,7 @@ Eigen::Vector3d MR::so3ToVec(Eigen::Matrix3d so3mat)
   
 }
 
-MR::AxisWAngle MR::AxisAng3(Eigen::Vector3d expc3)
+MR::AxisWAngle MR::AxisAng3(const Eigen::Vector3d expc3)
 {
   /*
     Takes A 3-vector of exponential coordinates for rotation.
@@ -122,19 +122,45 @@ MR::AxisWAngle MR::AxisAng3(Eigen::Vector3d expc3)
   return awa;
 }
 
+Eigen::Matrix3d MR::MatrixExp3(Eigen::Matrix3d so3mat)
+{
+  /*
+    Takes a so(3) representation of exponential coordinates.
+    Returns R in SO(3) that is achieved by rotating about omghat by theta from
+    an initial orientation R = I.
+    Example Input: 
+    so3mat = [[ 0, -3,  2],
+    [ 3,  0, -1],
+    [-2,  1,  0]]
+    Output:
+    [[-0.69492056,  0.71352099,  0.08929286],
+    [-0.19200697, -0.30378504,  0.93319235],
+    [ 0.69297817,  0.6313497 ,  0.34810748]]
+ */
+  Eigen::Vector3d omgtheta = MR::so3ToVec(so3mat);  
+  if (NearZero(omgtheta.norm()))
+    {
+      Eigen::Matrix3d a;
+      a << Eigen::MatrixXd::Identity(3, 3);
+      return a;
+    }
+  else
+    {
+      MR::AxisWAngle omgthetasplit = MR::AxisAng3(omgtheta);
+      double theta = omgthetasplit.angle; //3.74166
+      Eigen::Matrix3d omgmat = so3mat / theta;
+      //Eigen::MatrixXd::Identity(3, 3) + sin(theta) * omgmat;
+      return Eigen::MatrixXd::Identity(3, 3) + (sin(theta) * omgmat) + (1 - cos(theta)) * (omgmat*omgmat);
+    }
+}
+
 int main()
 {
   std::cout << MR::NearZero(1e-7) << "\n";
-  Eigen::Vector3d V(1,2,3);
-  Eigen::Vector3d V1(1,0,0);
-  //Eigen::Matrix3d mat;
-  //mat << 0, -3, 2, 3, 0 , -1, -2, 1 , 0;
-  //mat = MR::VecToso3(V);
-  //V = MR::so3ToVec(mat);
-  //std::cout << V << std::endl;
-  MR::AxisWAngle AWA(V1, 30);
-  AWA = MR::AxisAng3(V);
-  std::cout << AWA.axis << std::endl;
-  std::cout << AWA.angle << std::endl;
+  Eigen::Matrix3d V;
+  V << 0, -3, 2, 3, 0, -1, -2, 1, 0;
+  std::cout << V << std::endl;
+  V = MR::MatrixExp3(V);
+  std::cout << V << std::endl;
   return 0;
 }
