@@ -44,6 +44,7 @@ struct MR::AxisWAngle
 {
   Eigen::Vector3d axis;
   double angle;
+  // first constructor
   AxisWAngle(Eigen::Vector3d omega, double theta)
     try
       : axis(omega), angle(theta) 
@@ -59,7 +60,27 @@ struct MR::AxisWAngle
     {
       std::cout << "Exception: " << ia.what() << std::endl;
     }
+  // second constructor
+  AxisWAngle(double omg0, double omg1, double omg2, double theta)
+    try
+      : axis(omg0, omg1, omg2), angle(theta) 
+      {
+	if(fabs(axis.norm() - 1) > 1e-6)
+	  {
+	    std::stringstream err;
+	    err << "Omega axis is not a unit vector: norm = " << axis.norm() << " not 1";
+	    throw std::invalid_argument(err.str());
+	  }
+      }
+  catch(const std::invalid_argument& ia)
+    {
+      std::cout << "Exception: " << ia.what() << std::endl;
+    }
 };
+
+const Eigen::Matrix3d EYE3D = Eigen::Matrix3d::Identity();
+const Eigen::Matrix3d ZERO3D = Eigen::Matrix3d::Zero();
+const double PI = 3.1415926535897;
 
 Eigen::Matrix3d MR::VecToso3(Eigen::Vector3d omg)
 {
@@ -140,27 +161,71 @@ Eigen::Matrix3d MR::MatrixExp3(Eigen::Matrix3d so3mat)
   Eigen::Vector3d omgtheta = MR::so3ToVec(so3mat);  
   if (NearZero(omgtheta.norm()))
     {
-      Eigen::Matrix3d a;
-      a << Eigen::MatrixXd::Identity(3, 3);
-      return a;
+      return EYE3D;
     }
   else
     {
       MR::AxisWAngle omgthetasplit = MR::AxisAng3(omgtheta);
       double theta = omgthetasplit.angle; //3.74166
       Eigen::Matrix3d omgmat = so3mat / theta;
-      //Eigen::MatrixXd::Identity(3, 3) + sin(theta) * omgmat;
-      return Eigen::MatrixXd::Identity(3, 3) + (sin(theta) * omgmat) + (1 - cos(theta)) * (omgmat*omgmat);
+      return EYE3D + (sin(theta) * omgmat) + (1 - cos(theta)) * (omgmat*omgmat);
+    }
+}
+
+Eigen::Matrix3d MR::MatrixLog3(const Eigen::Matrix3d R)
+{
+  /*
+    Takes R (rotation matrix).
+    Returns the corresponding so(3) representation of exponential coordinates.
+    Example Input: 
+    R = [[0, 0, 1],
+    [1, 0, 0],
+    [0, 1, 0]]
+    Output:
+    [[          0, -1.20919958,  1.20919958],
+    [ 1.20919958,           0, -1.20919958],
+    [-1.20919958,  1.20919958,           0]]
+   */
+  if (NearZero((R - EYE3D).norm()))
+    {
+      return ZERO3D;
+    }
+  else if (NearZero(R.trace() + 1))
+    {
+      Eigen::Vector3d V;
+      if (!(NearZero(1 + R(2,2))))
+	{
+	  V << R(0,2), R(1,2), 1 + R(2,2);
+	  V *= 1.0 / sqrt(2 * (1 + R(2,2)));
+	}
+      else if (!(NearZero(1 + R(1,1))))
+	{
+	  V << R(0,1), 1 + R(1,1), R(2,1);
+	  V *= 1.0 / sqrt(2 * (1 + R(1,1)));
+	}
+      else
+	{
+	  V << 1 + R(0,0), R(1,0), R(2,0);
+	  V *= 1.0 / sqrt(2 * (1 + R(0,0)));
+	}
+      return MR::VecToso3(V * PI);
+    }
+  else
+    {
+      double acosinput = (R.trace() - 1) / 2.0;
+      if (acosinput > 1) acosinput = 1;
+      else if (acosinput < -1) acosinput = -1;
+      double theta = acos(acosinput);
+      return (theta / 2.0 / sin(theta)) * (R - R.transpose()); 
     }
 }
 
 int main()
 {
-  std::cout << MR::NearZero(1e-7) << "\n";
-  Eigen::Matrix3d V;
-  V << 0, -3, 2, 3, 0, -1, -2, 1, 0;
-  std::cout << V << std::endl;
-  V = MR::MatrixExp3(V);
-  std::cout << V << std::endl;
+  Eigen::Matrix3d R;
+  R << 0, 0, 1, 1, 0, 0, 0, 1, 0;
+  std::cout << R << std::endl;
+  R = MR::MatrixLog3(R);
+  std::cout << R << std::endl;
   return 0;
 }
