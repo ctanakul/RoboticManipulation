@@ -229,15 +229,35 @@ Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine> MR:
   return T;
 }
 
-int main()
+Eigen::Matrix3d MR::RFromTrans(Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine> T)
 {
   Eigen::Matrix3d R;
-  R << 1, 0, 0, 0, 0, -1, 0, 1, 0;
+  R << T.affine()(0,0), T.affine()(0,1), T.affine()(0,2),
+    T.affine()(1,0), T.affine()(1,1), T.affine()(1,2),
+    T.affine()(2,0), T.affine()(2,1), T.affine()(2,2);
+  return R;
+}
+
+Eigen::Vector3d MR::pFromTrans(Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine> T)
+{
   Eigen::Vector3d p;
+  p << T.affine()(0,3), T.affine()(1,3), T.affine()(2,3);
+  return p;
+}
+
+int main()
+{
+  Eigen::Matrix3d R, M;
+  R << 1, 0, 0, 0, 0, -1, 0, 1, 0;
+  Eigen::Vector3d p, G;
   p << 1,2,5;
   //std::cout << R << std::endl;
   Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine> T;
   T = MR::RpToTrans(R, p);
-  std::cout << T.matrix() << std::endl;
+  //std::cout << T.matrix() << std::endl;
+  M = MR::RFromTrans(T);
+  std::cout << M << std::endl;
+  G = MR::pFromTrans(T);
+  std::cout << G << std::endl;
   return 0;
 }

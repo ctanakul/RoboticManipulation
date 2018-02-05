@@ -16,6 +16,8 @@ namespace MR
   Eigen::Matrix3d MatrixLog3(Eigen::Matrix3d);
   Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine>
   RpToTrans(Eigen::Matrix3d,Eigen::Vector3d);
+  Eigen::Matrix3d RFromTrans(Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine>);
+  Eigen::Vector3d pFromTrans(Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine>);
 }
 #endif
 
