@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <Eigen/Dense>
+//#include <Eigen/Geometry>
 
 namespace MR
 {
@@ -13,6 +14,8 @@ namespace MR
   AxisWAngle AxisAng3(const Eigen::Vector3d);
   Eigen::Matrix3d MatrixExp3(Eigen::Matrix3d);
   Eigen::Matrix3d MatrixLog3(Eigen::Matrix3d);
+  Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine>
+  RpToTrans(Eigen::Matrix3d,Eigen::Vector3d);
 }
 #endif
 

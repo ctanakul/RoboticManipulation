@@ -220,12 +220,24 @@ Eigen::Matrix3d MR::MatrixLog3(const Eigen::Matrix3d R)
     }
 }
 
+Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine> MR::RpToTrans(Eigen::Matrix3d R, Eigen::Vector3d p)
+{
+  Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine> T;
+  T.affine() << R(0,0), R(0,1), R(0,2), p(0), 
+    R(1,0), R(1,1), R(1,2), p(1),
+    R(2,0), R(2,1), R(2,2), p(2);
+  return T;
+}
+
 int main()
 {
   Eigen::Matrix3d R;
-  R << 0, 0, 1, 1, 0, 0, 0, 1, 0;
-  std::cout << R << std::endl;
-  R = MR::MatrixLog3(R);
-  std::cout << R << std::endl;
+  R << 1, 0, 0, 0, 0, -1, 0, 1, 0;
+  Eigen::Vector3d p;
+  p << 1,2,5;
+  //std::cout << R << std::endl;
+  Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine> T;
+  T = MR::RpToTrans(R, p);
+  std::cout << T.matrix() << std::endl;
   return 0;
 }
