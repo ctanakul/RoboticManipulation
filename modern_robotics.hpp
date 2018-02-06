@@ -18,6 +18,8 @@ namespace MR
   RpToTrans(Eigen::Matrix3d,Eigen::Vector3d);
   Eigen::Matrix3d RFromTrans(Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine>);
   Eigen::Vector3d pFromTrans(Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine>);
+  Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine>
+  TransInv(Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine>);
 }
 #endif
 

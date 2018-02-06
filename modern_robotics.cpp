@@ -245,6 +245,13 @@ Eigen::Vector3d MR::pFromTrans(Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eige
   return p;
 }
 
+Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine> MR::TransInv(Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine> T)
+{
+  T.matrix() = T.matrix().inverse().eval();
+  return T;
+}
+
+
 int main()
 {
   Eigen::Matrix3d R, M;
@@ -254,10 +261,10 @@ int main()
   //std::cout << R << std::endl;
   Eigen::Transform<Eigen::ArrayXf::Scalar, 3,  Eigen::TransformTraits::Affine> T;
   T = MR::RpToTrans(R, p);
-  //std::cout << T.matrix() << std::endl;
-  M = MR::RFromTrans(T);
-  std::cout << M << std::endl;
-  G = MR::pFromTrans(T);
-  std::cout << G << std::endl;
+  std::cout << "T1: " << T.matrix() << std::endl;
+  //T.matrix() = T.matrix().inverse().eval();
+  T = MR::TransInv(T);
+  std::cout << "T2: " << T.matrix() << std::endl;
+
   return 0;
 }
